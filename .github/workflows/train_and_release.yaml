@@ -1,0 +1,42 @@
+name: Train and Release Model
+
+on:
+  workflow_dispatch:
+
+jobs:
+  train-and-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python 3.12
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Install dependencies
+      run: pip install -r requirements.txt
+
+    - name: Run training pipeline
+      run: |
+        mkdir output
+        python src/text_preprocessing.py
+        python src/text_classification.py
+
+    - name: Create Release Tag
+      id: get_date
+      run: echo "TAG=$(date +'%Y%m%d')" >> $GITHUB_ENV
+
+    - name: Create GitHub Release and Upload Assets
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        gh release create ${{ env.TAG }} \
+          output/model.joblib \
+          output/preprocessor.joblib \
+          --notes "Automated model training and release for ${{ env.TAG }}" \
+          --title "Model Release ${{ env.TAG }}"
