@@ -17,7 +17,7 @@ jobs:
 
       - name: Clone lib-version and extract version
         run: |
-          git clone --branch library-creation-and-release "https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/${{ github.repository_owner }}/lib-version.git" lib-version
+          git clone --branch library-creation-and-release "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository_owner }}/lib-version.git" lib-version
           VERSION=$(grep -oPm1 "(?<=<version>)[^<]+" lib-version/pom.xml)
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           echo "Version detected: $VERSION"
@@ -35,7 +35,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GH_TOKEN }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push image
         uses: docker/build-push-action@v5
