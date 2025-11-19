@@ -4,6 +4,7 @@ on:
   repository_dispatch:
     types: [lib-version-updated]
   workflow_dispatch:
+  push:
 
 permissions:
   contents: read
@@ -46,6 +47,7 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
+          platforms: linux/amd64,linux/arm64
           build-args: |
             MODEL_VERSION=${{ env.VERSION }}
           tags: |
