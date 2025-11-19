@@ -2,7 +2,6 @@ name: Test Release model-service with lib-version
 
 on:
   workflow_dispatch:
-  push:
 
 jobs:
   test-release:
