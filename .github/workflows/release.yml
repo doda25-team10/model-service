@@ -4,7 +4,6 @@ on:
   repository_dispatch:
     types: [lib-version-updated]
   workflow_dispatch:
-  push:
 
 permissions:
   contents: read
