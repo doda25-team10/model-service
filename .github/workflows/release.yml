@@ -1,8 +1,11 @@
-name: Release model-service with lib-version
+name: Release model-service
 
 on:
-  repository_dispatch:
-    types: [lib-version-updated]
+  push:
+    # branches:
+    #   - main
+    # paths:
+    #   - "VERSION" 
   workflow_dispatch:
 
 permissions:
@@ -18,11 +21,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Clone lib-version and extract version
+      - name: Read version from VERSION file
+        id: version
         run: |
-          git clone --branch library-creation-and-release "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository_owner }}/lib-version.git" lib-version
-          VERSION=$(grep -oPm1 "(?<=<version>)[^<]+" lib-version/pom.xml)
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "VERSION=$(cat VERSION)" >> $GITHUB_OUTPUT
           echo "Version detected: $VERSION"
 
           # Split
