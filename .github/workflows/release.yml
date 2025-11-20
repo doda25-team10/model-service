@@ -2,10 +2,10 @@ name: Release model-service
 
 on:
   push:
-    # branches:
-    #   - main
-    # paths:
-    #   - "VERSION" 
+    branches:
+      - main
+    paths:
+      - "VERSION" 
   workflow_dispatch:
 
 permissions:
@@ -21,10 +21,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Read version from VERSION file
-        id: version
+      - name: Clone lib-version and extract version
         run: |
-          echo "VERSION=$(cat VERSION)" >> $GITHUB_OUTPUT
+          VERSION=$(cat VERSION)
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
           echo "Version detected: $VERSION"
 
           # Split
