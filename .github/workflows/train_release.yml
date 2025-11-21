@@ -13,6 +13,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Read VERSION file
+        id: get_version
+        run: echo "VERSION=$(cat VERSION)" >> $GITHUB_OUTPUT
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -34,8 +38,8 @@ jobs:
       - name: Create Release and Upload Model
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: model-v${{ github.run_number }}
-          name: Model Release v${{ github.run_number }}
+          tag_name: v${{ steps.get_version.outputs.VERSION }}-model.${{ github.run_number }}
+          name: Model v${{ steps.get_version.outputs.VERSION }} (Run ${{ github.run_number }})
           body: "Automated model training release from Run #${{ github.run_number }}"
           files: output/model.joblib
           make_latest: true # This ensures 'releases/latest' points to this new version
