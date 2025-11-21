@@ -5,6 +5,9 @@ Preprocess the data to be trained by the learning algorithm.
 import pandas as pd
 import numpy as np
 
+import urllib.request
+import os
+
 import string
 import nltk
 from nltk.corpus import stopwords
@@ -23,6 +26,32 @@ def _load_data():
         names=['label', 'message']
     )
     return messages
+
+def find_preprocessed_data():
+    data_path = 'output/preprocessed_data.joblib'
+
+    if os.path.exists(data_path):
+        print(f"Preprocessed data found at {data_path}")
+        return
+
+    version = os.environ.get("MODEL_VERSION", "latest")
+    if version == "latest":
+        data_url = "https://github.com/doda25-team10/model-service/releases/latest/download/preprocessed_data.joblib"
+    else:
+        data_url = f"https://github.com/doda25-team10/model-service/releases/download/{version}/preprocessed_data.joblib"
+
+    if not data_url:
+        print("Error: Preprocessed data missing and DATA_URL not set.")
+        return
+
+    print(f"Preprocessed data not found. Downloading from {data_url}...")
+    os.makedirs(os.path.dirname(data_path), exist_ok=True)
+    try:
+        urllib.request.urlretrieve(data_url, data_path)
+        print("Preprocessed data download complete.")
+    except Exception as e:
+        print(f"Failed to download preprocessed data: {e}")
+
 
 def _text_process(data):
     '''
@@ -84,4 +113,5 @@ def main():
     _preprocess(messages)
 
 if __name__ == "__main__":
+    find_preprocessed_data()
     main()
