@@ -11,6 +11,8 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier, BaggingClassifier
 from sklearn.metrics import accuracy_score, classification_report
 from joblib import dump, load
+import urllib.request
+import os
 import matplotlib
 import matplotlib.pyplot as plt
 from text_preprocessing import _load_data
@@ -18,6 +20,30 @@ from text_preprocessing import _load_data
 #matplotlib.use('TkAgg')
 pd.set_option('display.max_colwidth', None)
 
+def find_preprocessor():
+    preprocessor_path = 'output/preprocessor.joblib'
+
+    if os.path.exists(preprocessor_path):
+        print(f"Preprocessor found at {preprocessor_path}")
+        return
+
+    version = os.environ.get("MODEL_VERSION", "latest")
+    if version == "latest":
+        preprocessor_url = "https://github.com/doda25-team10/model-service/releases/latest/download/preprocessor.joblib"
+    else:
+        preprocessor_url = f"https://github.com/doda25-team10/model-service/releases/download/{version}/preprocessor.joblib"
+
+    if not preprocessor_url:
+      print("Error: preprocessor missing and PREPROCESSOR_URL not set.")
+      return
+    
+    print(f"Preprocessor not found. Downloading from {preprocessor_url}...")
+    os.makedirs(os.path.dirname(preprocessor_path), exist_ok=True)
+    try:
+        urllib.request.urlretrieve(preprocessor_url, preprocessor_path)
+        print("Preprocessor download complete.")
+    except Exception as e:
+        print(f"Failed to download preprocessor: {e}")
 
 def my_train_test_split(*datasets):
     '''
@@ -92,4 +118,5 @@ def main():
     dump(classifiers['Decision Tree'], 'output/model.joblib')
 
 if __name__ == "__main__":
+    find_preprocessor()
     main()
