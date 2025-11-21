@@ -20,26 +20,30 @@ args = parser.parse_args()
 
 
 def find_model():
+  preprocessor_path = 'output/preprocessor.joblib'
+  preprocessed_data_path = 'output/preprocessed_data.joblib'
   model_path = 'output/model.joblib'
 
-  if os.path.exists(model_path):
-      print(f"Model found at {model_path}")
+  if os.path.exists(model_path) and os.path.exists(preprocessor_path) and os.path.exists(preprocessed_data_path):
+      print(f"Model found at {model_path} with all required files.")
       return
 
   version = os.environ.get("MODEL_VERSION", "latest")
   if version == "latest":
-      model_url = "https://github.com/doda25-team10/model-service/releases/latest/download/model.joblib"
+      download_url = "https://github.com/doda25-team10/model-service/releases/latest/download/"
   else:
-      model_url = f"https://github.com/doda25-team10/model-service/releases/download/{version}/model.joblib"
+      download_url = f"https://github.com/doda25-team10/model-service/releases/{version}/download/"
 
-  if not model_url:
-      print("Error: Model missing and MODEL_DOWNLOAD_URL not set.")
+  if not download_url:
+      print("Error: Model missing and DOWNLOAD_URL not set.")
       return
 
-  print(f"Model not found. Downloading from {model_url}...")
+  print(f"Model not found. Downloading from {download_url}...")
   os.makedirs(os.path.dirname(model_path), exist_ok=True)
   try:
-      urllib.request.urlretrieve(model_url, model_path)
+      urllib.request.urlretrieve(download_url + 'preprocessed_data.joblib', preprocessed_data_path)
+      urllib.request.urlretrieve(download_url + 'preprocessor.joblib', preprocessor_path)
+      urllib.request.urlretrieve(download_url + 'model.joblib', model_path)
       print("Download complete.")
   except Exception as e:
         print(f"Failed to download model: {e}")
