@@ -41,7 +41,10 @@ jobs:
           tag_name: v${{ steps.get_version.outputs.VERSION }}-model.${{ github.run_number }}
           name: Model v${{ steps.get_version.outputs.VERSION }} (Run ${{ github.run_number }})
           body: "Automated model training release from Run #${{ github.run_number }}"
-          files: output/model.joblib
+          files: |
+            output/model.joblib
+            output/preprocessor.joblib
+            output/preprocessed_data.joblib
           make_latest: true # This ensures 'releases/latest' points to this new version
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
