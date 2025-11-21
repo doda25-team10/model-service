@@ -1,0 +1,43 @@
+name: Train and Release Model
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  train-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Create output directory
+        run: mkdir -p output
+
+      - name: Preprocess Data
+        run: python src/text_preprocessing.py
+
+      - name: Train Model
+        run: python src/text_classification.py
+
+      - name: Create Release and Upload Model
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: model-v${{ github.run_number }}
+          name: Model Release v${{ github.run_number }}
+          body: "Automated model training release from Run #${{ github.run_number }}"
+          files: output/model.joblib
+          make_latest: true # This ensures 'releases/latest' points to this new version
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

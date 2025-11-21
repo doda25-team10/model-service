@@ -7,6 +7,7 @@ import joblib
 from flask import Flask, jsonify, request
 from flasgger import Swagger
 import pandas as pd
+import urllib.request
 
 from text_preprocessing import prepare, _extract_message_len, _text_process
 
@@ -16,6 +17,29 @@ swagger = Swagger(app)
 parser = argparse.ArgumentParser()
 parser.add_argument("--port", type=int, default=8081)
 args = parser.parse_args()
+
+
+def find_model():
+  model_path = 'output/model.joblib'
+
+  if os.path.exists(model_path):
+      print(f"Model found at {model_path}")
+      return
+
+  model_url = os.environ.get("MODEL_DOWNLOAD_URL", "https://github.com/doda25-team10/model-service/releases/latest/download/model.joblib")
+
+  if not model_url:
+      print("Error: Model missing and MODEL_DOWNLOAD_URL not set.")
+      return
+
+  print(f"Model not found. Downloading from {model_url}...")
+  os.makedirs(os.path.dirname(model_path), exist_ok=True)
+  try:
+      urllib.request.urlretrieve(model_url, model_path)
+      print("Download complete.")
+  except Exception as e:
+        print(f"Failed to download model: {e}")
+
 
 @app.route('/predict', methods=['POST'])
 def predict():
@@ -55,5 +79,5 @@ def predict():
     return jsonify(res)
 
 if __name__ == '__main__':
-    #clf = joblib.load('output/model.joblib')
+    find_model()
     app.run(host="0.0.0.0", port=args.port, debug=True)
