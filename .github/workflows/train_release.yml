@@ -44,6 +44,7 @@ jobs:
           files: |
             output/model.joblib
             output/preprocessor.joblib
+            output/preprocessed_data.joblib
           make_latest: true # This ensures 'releases/latest' points to this new version
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
