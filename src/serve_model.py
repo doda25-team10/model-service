@@ -26,7 +26,11 @@ def find_model():
       print(f"Model found at {model_path}")
       return
 
-  model_url = os.environ.get("MODEL_DOWNLOAD_URL", "https://github.com/doda25-team10/model-service/releases/latest/download/model.joblib")
+  version = os.environ.get("MODEL_VERSION", "latest")
+  if version == "latest":
+      model_url = "https://github.com/doda25-team10/model-service/releases/latest/download/model.joblib"
+  else:
+      model_url = f"https://github.com/doda25-team10/model-service/releases/download/{version}/model.joblib"
 
   if not model_url:
       print("Error: Model missing and MODEL_DOWNLOAD_URL not set.")
