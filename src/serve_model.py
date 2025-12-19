@@ -76,9 +76,8 @@ def predict():
     sms = input_data.get('sms')
     processed_sms = prepare(sms)
     model = joblib.load('output/model.joblib')
-#     prediction = model.predict(processed_sms)[0]
-    prediction = 'ham'
-    
+    prediction = model.predict(processed_sms)[0]
+
     res = {
         "result": prediction,
         "classifier": "decision tree",
