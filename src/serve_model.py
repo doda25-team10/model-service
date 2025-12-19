@@ -77,7 +77,7 @@ def predict():
     processed_sms = prepare(sms)
     model = joblib.load('output/model.joblib')
 #     prediction = model.predict(processed_sms)[0]
-    prediction = 'ham'
+    prediction = 'spam'
     
     res = {
         "result": prediction,
