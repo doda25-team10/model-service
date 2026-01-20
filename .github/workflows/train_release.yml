@@ -13,9 +13,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Read VERSION file
+      - name: Extract version from pyproject.toml
         id: get_version
-        run: echo "VERSION=$(cat VERSION)" >> $GITHUB_OUTPUT
+        run: |
+          VERSION=$(python - << 'EOF'
+          import tomllib
+          with open("pyproject.toml", "rb") as f:
+              data = tomllib.load(f)
+          print(data["project"]["version"])
+          EOF
+          )
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          echo "Detected version: $VERSION"
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -35,16 +44,19 @@ jobs:
       - name: Train Model
         run: python src/text_classification.py
 
-      - name: Create Release and Upload Model
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: v${{ steps.get_version.outputs.VERSION }}-model.${{ github.run_number }}
-          name: Model v${{ steps.get_version.outputs.VERSION }} (Run ${{ github.run_number }})
-          body: "Automated model training release from Run #${{ github.run_number }}"
-          files: |
-            output/model.joblib
-            output/preprocessor.joblib
-            output/preprocessed_data.joblib
-          make_latest: true # This ensures 'releases/latest' points to this new version
+      - name: Create GitHub Release and Upload Model Artifacts
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="${{ steps.get_version.outputs.VERSION }}"
+          TAG="v${VERSION}-model.${{ github.run_number }}"
+          TITLE="Model v${VERSION} (Run ${{ github.run_number }})"
+          NOTES="Automated model training release from Run #${{ github.run_number }}"
+
+          gh release create "$TAG" \
+            output/model.joblib \
+            output/preprocessor.joblib \
+            output/preprocessed_data.joblib \
+            --title "$TITLE" \
+            --notes "$NOTES" \
+            --latest
