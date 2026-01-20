@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - "VERSION" 
+      - "pyproject.toml" 
   workflow_dispatch:
 
 permissions:
@@ -21,16 +21,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Clone lib-version and extract version
+      - name: Extract version from pyproject.toml
         run: |
-          VERSION=$(cat VERSION)
+          VERSION=$(python - << 'EOF'
+          import tomllib
+          with open("pyproject.toml", "rb") as f:
+              data = tomllib.load(f)
+          print(data["project"]["version"])
+          EOF
+          )
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           echo "Version detected: $VERSION"
 
-          # Split
           MAJOR=$(echo "$VERSION" | cut -d. -f1)
           MINOR=$(echo "$VERSION" | cut -d. -f2)
           PATCH=$(echo "$VERSION" | cut -d. -f3)
+
           echo "MAJOR=$MAJOR" >> $GITHUB_ENV
           echo "MINOR=$MINOR" >> $GITHUB_ENV
           echo "PATCH=$PATCH" >> $GITHUB_ENV
